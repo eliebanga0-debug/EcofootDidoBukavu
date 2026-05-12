@@ -29,9 +29,9 @@
                 <strong>Identifiants de démonstration:</strong>
                 <ul style="margin-top: 0.5rem; padding-left: 1.5rem;">
                     <li>Admin: admin@ecofoot.com / admin123</li>
-                    <li>Élève: john@ecofoot.com / student123</li>
-                    <li>Parent: jane@ecofoot.com / parent123</li>
-                    <li>Staff: bob@ecofoot.com / staff123</li>
+                    <li>Élève: student@ecofoot.com / student123</li>
+                    <li>Parent: parent@ecofoot.com / parent123</li>
+                    <li>Staff: staff@ecofoot.com / staff123</li>
                 </ul>
             </div>
 
@@ -71,9 +71,9 @@
         function initializeDemoUsers() {
             const demoUsers = [
                 { email: 'admin@ecofoot.com', password: 'admin123', fullName: 'Admin User', role: 'admin' },
-                { email: 'john@ecofoot.com', password: 'student123', fullName: 'John Doe', role: 'student', position: 'forward' },
-                { email: 'jane@ecofoot.com', password: 'parent123', fullName: 'Jane Doe', role: 'parent', childName: 'John Doe' },
-                { email: 'bob@ecofoot.com', password: 'staff123', fullName: 'Bob Smith', role: 'staff', department: 'coaching' }
+                { email: 'student@ecofoot.com', password: 'student123', fullName: 'Student Doe', role: 'student', position: 'forward' },
+                { email: 'parent@ecofoot.com', password: 'parent123', fullName: 'Parent Doe', role: 'parent', childName: 'Student Doe' },
+                { email: 'staff@ecofoot.com', password: 'staff123', fullName: 'Staff Member', role: 'staff', department: 'coaching' }
             ];
 
             if (app.users.length === 0) {

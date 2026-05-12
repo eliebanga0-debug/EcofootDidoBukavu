@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription - Ecofoot Bukavu</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="navbar">
+            <a href="index.html" class="navbar-brand">⚽ Ecofoot Bukavu</a>
+            <ul class="nav-menu">
+                <li><a href="index.html">Accueil</a></li>
+                <li><a href="login.html" class="btn btn-secondary">Connexion</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="auth-container">
+        <div class="auth-card">
+            <h2>Créer un compte</h2>
+            <p>Rejoignez notre communauté Ecofoot Bukavu</p>
+
+            <div id="alertContainer"></div>
+
+            <form id="registrationForm">
+                <!-- Basic Info -->
+                <div class="form-group">
+                    <label for="fullName">Nom complet *</label>
+                    <input type="text" id="fullName" name="fullName" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Téléphone *</label>
+                    <input type="tel" id="phone" name="phone" required>
+                </div>
+
+                <!-- Role Selection -->
+                <div class="form-group">
+                    <label for="role">Type de compte *</label>
+                    <select id="role" name="role" required onchange="updateRoleFields()">
+                        <option value="">-- Sélectionner un rôle --</option>
+                        <option value="student">Élève/Joueur</option>
+                        <option value="parent">Parent</option>
+                        <option value="staff">Staff Technique</option>
+                        <option value="admin">Administrateur</option>
+                    </select>
+                </div>
+
+                <!-- Student Specific Fields -->
+                <div id="studentFields" class="hidden">
+                    <div class="form-group">
+                        <label for="studentClass">Classe/Catégorie *</label>
+                        <input type="text" id="studentClass" name="studentClass">
+                    </div>
+                    <div class="form-group">
+                        <label for="position">Poste préféré *</label>
+                        <select id="position" name="position">
+                            <option value="">-- Sélectionner un poste --</option>
+                            <option value="goalkeeper">Gardien</option>
+                            <option value="defender">Défenseur</option>
+                            <option value="midfielder">Milieu</option>
+                            <option value="forward">Attaquant</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Parent Specific Fields -->
+                <div id="parentFields" class="hidden">
+                    <div class="form-group">
+                        <label for="childName">Nom de l'enfant *</label>
+                        <input type="text" id="childName" name="childName">
+                    </div>
+                    <div class="form-group">
+                        <label for="relationship">Relation *</label>
+                        <select id="relationship" name="relationship">
+                            <option value="">-- Sélectionner la relation --</option>
+                            <option value="père">Père</option>
+                            <option value="mère">Mère</option>
+                            <option value="tuteur">Tuteur/Tutrice</option>
+                            <option value="autre">Autre</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Staff Specific Fields -->
+                <div id="staffFields" class="hidden">
+                    <div class="form-group">
+                        <label for="department">Département *</label>
+                        <select id="department" name="department">
+                            <option value="">-- Sélectionner un département --</option>
+                            <option value="coaching">Coaching</option>
+                            <option value="medical">Médical</option>
+                            <option value="logistics">Logistique</option>
+                            <option value="administration">Administration</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="experience">Années d'expérience *</label>
+                        <input type="number" id="experience" name="experience" min="0">
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div class="form-group">
+                    <label for="password">Mot de passe *</label>
+                    <input type="password" id="password" name="password" required minlength="6">
+                    <small style="color: var(--gray);">Au minimum 6 caractères</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirmer le mot de passe *</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" required>
+                </div>
+
+                <!-- Terms -->
+                <div class="form-group">
+                    <input type="checkbox" id="terms" name="terms" required>
+                    <label for="terms" style="display: inline;">J'accepte les conditions d'utilisation</label>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">S'inscrire</button>
+            </form>
+
+            <div class="auth-link">
+                Vous avez déjà un compte? <a href="login.html">Se connecter</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        function updateRoleFields() {
+            const role = document.getElementById('role').value;
+            document.getElementById('studentFields').classList.toggle('hidden', role !== 'student');
+            document.getElementById('parentFields').classList.toggle('hidden', role !== 'parent');
+            document.getElementById('staffFields').classList.toggle('hidden', role !== 'staff');
+        }
+
+        document.getElementById('registrationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (password !== confirmPassword) {
+                showAlert('Les mots de passe ne correspondent pas!', 'danger');
+                return;
+            }
+
+            const userData = {
+                fullName: document.getElementById('fullName').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                role: document.getElementById('role').value,
+                password: password
+            };
+
+            if (userData.role === 'student') {
+                userData.studentClass = document.getElementById('studentClass').value;
+                userData.position = document.getElementById('position').value;
+            } else if (userData.role === 'parent') {
+                userData.childName = document.getElementById('childName').value;
+                userData.relationship = document.getElementById('relationship').value;
+            } else if (userData.role === 'staff') {
+                userData.department = document.getElementById('department').value;
+                userData.experience = document.getElementById('experience').value;
+            }
+
+            const result = app.register(userData);
+
+            if (result.success) {
+                showAlert('Inscription réussie! Redirection vers la connexion...', 'success');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+            } else {
+                showAlert(result.message, 'danger');
+            }
+        });
+
+        function showAlert(message, type = 'info') {
+            const alertContainer = document.getElementById('alertContainer');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            alertContainer.innerHTML = '';
+            alertContainer.appendChild(alertDiv);
+        }
+    </script>
+</body>
+</html>

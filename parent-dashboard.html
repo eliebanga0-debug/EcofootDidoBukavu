@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parent Portal - Ecofoot Bukavu</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="navbar">
+            <a href="index.html" class="navbar-brand">⚽ Ecofoot Bukavu</a>
+            <ul class="nav-menu">
+                <li><a href="parent-dashboard.html">Dashboard</a></li>
+                <li><a href="live-chat.html">Messages</a></li>
+                <li><a href="player-directory.html">Directory</a></li>
+                <li><a href="payment.html">Payments</a></li>
+                <li><a href="#" class="logout-btn" onclick="app.logout(); window.location.href='index.html';">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div id="alerts"></div>
+
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h1>Parent Portal</h1>
+            <div class="profile-card" style="width: 300px; padding: 1rem;">
+                <div class="avatar" style="margin: 0 auto;"></div>
+                <div class="profile-name" id="parentName">Loading...</div>
+                <div class="profile-role">Parent/Guardian</div>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="row">
+            <div class="stat-box">
+                <div class="stat-label">Children Enrolled</div>
+                <div class="stat-number" id="statsChildren">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Average Performance</div>
+                <div class="stat-number" id="statsAvgPerformance">-</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Upcoming Events</div>
+                <div class="stat-number" id="statsEvents">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Total Payments Made</div>
+                <div class="stat-number" id="statsTotalPayments">0</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-button active" onclick="switchTab('children')">Children</button>
+            <button class="tab-button" onclick="switchTab('progress')">Progress</button>
+            <button class="tab-button" onclick="switchTab('notifications')">Notifications</button>
+            <button class="tab-button" onclick="switchTab('payments')">Payments</button>
+        </div>
+
+        <!-- Children Tab -->
+        <div id="children-content" class="tab-content active">
+            <div class="card">
+                <div class="card-header">My Children</div>
+                <div class="card-body">
+                    <div id="childrenList">
+                        <div style="text-align: center; color: #666; padding: 2rem;">
+                            No children linked to this account
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="#" class="btn btn-primary btn-sm" onclick="openModal('addChildModal')">Add Child</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Tab -->
+        <div id="progress-content" class="tab-content">
+            <div class="row">
+                <div class="card">
+                    <div class="card-header">Performance Summary</div>
+                    <div class="card-body">
+                        <div style="margin-bottom: 2rem;">
+                            <h4>Child 1: John Doe</h4>
+                            <div style="background: #e0e0e0; height: 20px; border-radius: 4px; overflow: hidden; margin-bottom: 0.5rem;">
+                                <div style="background: #2ecc71; height: 100%; width: 85%;"></div>
+                            </div>
+                            <p style="color: #666; font-size: 0.875rem;">Overall Performance: 8.5/10</p>
+                        </div>
+                        <div>
+                            <h4>Attendance: 95%</h4>
+                            <div style="background: #e0e0e0; height: 20px; border-radius: 4px; overflow: hidden;">
+                                <div style="background: #3498db; height: 100%; width: 95%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">Skills Development</div>
+                    <div class="card-body">
+                        <ul style="list-style: none;">
+                            <li style="padding: 0.5rem 0; border-bottom: 1px solid #e0e0e0;">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <strong>Technical Skills</strong>
+                                    <span class="badge badge-primary">7.5/10</span>
+                                </div>
+                            </li>
+                            <li style="padding: 0.5rem 0; border-bottom: 1px solid #e0e0e0;">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <strong>Teamwork</strong>
+                                    <span class="badge badge-success">8/10</span>
+                                </div>
+                            </li>
+                            <li style="padding: 0.5rem 0; border-bottom: 1px solid #e0e0e0;">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <strong>Leadership</strong>
+                                    <span class="badge badge-primary">7/10</span>
+                                </div>
+                            </li>
+                            <li style="padding: 0.5rem 0;">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <strong>Discipline</strong>
+                                    <span class="badge badge-success">9/10</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications Tab -->
+        <div id="notifications-content" class="tab-content">
+            <div class="card">
+                <div class="card-header">Important Notifications</div>
+                <div class="card-body" id="notificationsList">
+                    <div style="text-align: center; color: #666; padding: 2rem;">
+                        No notifications
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payments Tab -->
+        <div id="payments-content" class="tab-content">
+            <div class="card">
+                <div class="card-header">Payment History</div>
+                <div class="card-body">
+                    <div style="overflow-x: auto;">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="paymentsList">
+                                <tr>
+                                    <td colspan="4" style="text-align: center; color: #666;">No payments made yet</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="payment.html" class="btn btn-primary btn-sm">Make Payment</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Child Modal -->
+    <div id="addChildModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Child</h3>
+                <button class="close-btn" onclick="closeModal('addChildModal')">×</button>
+            </div>
+            <form id="addChildForm" onsubmit="handleAddChild(event)">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="childName">Child's Full Name</label>
+                        <input type="text" id="childName" placeholder="Enter child's name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="childAge">Age</label>
+                        <input type="number" id="childAge" placeholder="Age" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="childPosition">Position</label>
+                        <input type="text" id="childPosition" placeholder="e.g., Forward, Goalkeeper">
+                    </div>
+                    <div class="form-group">
+                        <label for="childNumber">Jersey Number</label>
+                        <input type="number" id="childNumber" placeholder="Jersey number">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" onclick="closeModal('addChildModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Child</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!app.currentUser || app.currentUser.role !== 'parent') {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const user = app.currentUser;
+            document.getElementById('parentName').textContent = user.fullName;
+
+            // Update avatar
+            const initials = user.fullName.split(' ').map(n => n[0]).join('').toUpperCase();
+            document.querySelectorAll('.avatar').forEach(avatar => {
+                if (avatar.textContent === '') {
+                    avatar.textContent = initials;
+                }
+            });
+
+            // Load parent's children
+            const children = app.students.filter(s => s.parentId === user.id);
+            document.getElementById('statsChildren').textContent = children.length;
+
+            // Render children list
+            const childrenList = document.getElementById('childrenList');
+            if (children.length > 0) {
+                childrenList.innerHTML = children.map(child => `
+                    <div class="card" style="margin-bottom: 1rem;">
+                        <div class="card-body">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <h4>${child.fullName}</h4>
+                                    <p style="color: #666; font-size: 0.875rem;">
+                                        ID: ${child.studentId}
+                                    </p>
+                                </div>
+                                <div style="text-align: right;">
+                                    <button class="btn btn-secondary btn-sm" onclick="viewChildProgress('${child.id}')">View Progress</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Load payments
+            const payments = app.getPayments(user.id);
+            const paymentsList = document.getElementById('paymentsList');
+            if (payments.length > 0) {
+                paymentsList.innerHTML = payments.map(p => `
+                    <tr>
+                        <td>${app.formatDate(p.date)}</td>
+                        <td>${p.description}</td>
+                        <td>$${p.amount.toFixed(2)}</td>
+                        <td><span class="badge badge-${p.status === 'completed' ? 'success' : 'warning'}">${p.status}</span></td>
+                    </tr>
+                `).join('');
+
+                const total = payments.reduce((sum, p) => sum + p.amount, 0);
+                document.getElementById('statsTotalPayments').textContent = `$${total.toFixed(2)}`;
+            }
+        });
+
+        function handleAddChild(event) {
+            event.preventDefault();
+            const childData = {
+                fullName: document.getElementById('childName').value,
+                age: document.getElementById('childAge').value,
+                position: document.getElementById('childPosition').value,
+                jerseyNumber: document.getElementById('childNumber').value,
+                role: 'student',
+                email: `child${Date.now()}@ecofoot.com`,
+                password: 'default123',
+                phone: app.currentUser.phone,
+                parentId: app.currentUser.id
+            };
+
+            const result = app.addStudent(childData);
+            if (result.success) {
+                app.showAlert('Child added successfully!', 'success');
+                closeModal('addChildModal');
+                document.getElementById('addChildForm').reset();
+                location.reload();
+            }
+        }
+
+        function viewChildProgress(childId) {
+            app.showAlert('Viewing progress for child ' + childId, 'info');
+            // In a real app, this would navigate to a detailed progress page
+        }
+    </script>
+</body>
+</html>

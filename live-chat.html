@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Chat - Ecofoot Bukavu</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="navbar">
+            <a href="index.html" class="navbar-brand">⚽ Ecofoot Bukavu</a>
+            <ul class="nav-menu">
+                <li><a href="student-dashboard.html">Dashboard</a></li>
+                <li><a href="live-chat.html">Messages</a></li>
+                <li><a href="player-directory.html">Directory</a></li>
+                <li><a href="#" class="logout-btn" onclick="app.logout(); window.location.href='index.html';">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container" style="display: grid; grid-template-columns: 300px 1fr; gap: 2rem; margin-top: 2rem;">
+        <div id="alerts" style="grid-column: 1/-1;"></div>
+
+        <!-- Conversations Sidebar -->
+        <div>
+            <div class="card">
+                <div class="card-header">
+                    <h3 style="margin: 0;">Conversations</h3>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                    <button class="btn btn-primary btn-block" style="margin: 1rem;" onclick="openModal('newChatModal')">New Message</button>
+                    <div id="conversationsList" style="max-height: 500px; overflow-y: auto;">
+                        <div style="padding: 1rem; text-align: center; color: #666;">
+                            No conversations yet
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Meetings -->
+            <div class="card" style="margin-top: 2rem;">
+                <div class="card-header">
+                    <h3 style="margin: 0;">Meetings</h3>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                    <button class="btn btn-primary btn-block" style="margin: 1rem;" onclick="openModal('createMeetingModal')">New Meeting</button>
+                    <div id="meetingsList" style="max-height: 500px; overflow-y: auto;">
+                        <div style="padding: 1rem; text-align: center; color: #666; font-size: 0.875rem;">
+                            No meetings scheduled
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div>
+            <div class="card">
+                <div class="card-header">
+                    <h3 id="chatHeader" style="margin: 0;">Select a conversation</h3>
+                </div>
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessages">
+                        <div style="text-align: center; color: #666; padding: 2rem;">
+                            Select a conversation to start chatting
+                        </div>
+                    </div>
+                    <div class="chat-input">
+                        <input type="text" id="messageInput" placeholder="Type your message...">
+                        <button class="btn btn-primary" id="sendBtn" onclick="sendMessage()" style="margin: 0;">Send</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Meeting Chat Tab -->
+            <div id="meetingChatArea" style="display: none; margin-top: 2rem;">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 id="meetingChatHeader" style="margin: 0;">Meeting Chat</h3>
+                    </div>
+                    <div class="chat-container">
+                        <div class="chat-messages" id="meetingChatMessages">
+                            <div style="text-align: center; color: #666; padding: 2rem;">
+                                No messages in this meeting yet
+                            </div>
+                        </div>
+                        <div class="chat-input">
+                            <input type="text" id="meetingMessageInput" placeholder="Type your message...">
+                            <button class="btn btn-primary" id="sendMeetingBtn" onclick="sendMeetingMessage()" style="margin: 0;">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Chat Modal -->
+    <div id="newChatModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Start New Conversation</h3>
+                <button class="close-btn" onclick="closeModal('newChatModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="selectUser">Select User</label>
+                    <select id="selectUser">
+                        <option value="">Choose a user...</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('newChatModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="startNewConversation()">Start Chat</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Meeting Modal -->
+    <div id="createMeetingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Meeting</h3>
+                <button class="close-btn" onclick="closeModal('createMeetingModal')">×</button>
+            </div>
+            <form id="createMeetingForm" onsubmit="handleCreateMeeting(event)">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="meetingTitle">Meeting Title *</label>
+                        <input type="text" id="meetingTitle" placeholder="Enter meeting title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="meetingDescription">Description</label>
+                        <textarea id="meetingDescription" rows="4" placeholder="Enter meeting details"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="meetingDate">Date *</label>
+                            <input type="date" id="meetingDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="meetingTime">Time *</label>
+                            <input type="time" id="meetingTime" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="meetingParticipants">Participants (comma-separated emails)</label>
+                        <textarea id="meetingParticipants" rows="3" placeholder="Enter email addresses..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" onclick="closeModal('createMeetingModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Meeting</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        let currentChat = null;
+        let currentChatUser = null;
+        let currentMeeting = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!app.currentUser) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            loadConversations();
+            loadMeetings();
+            populateUserList();
+
+            // Allow sending message with Enter key
+            document.getElementById('messageInput')?.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+
+            document.getElementById('meetingMessageInput')?.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMeetingMessage();
+                }
+            });
+        });
+
+        function loadConversations() {
+            const conversations = app.getConversations(app.currentUser.id);
+            const conversationsList = document.getElementById('conversationsList');
+
+            if (conversations.length === 0) {
+                conversationsList.innerHTML = '<div style="padding: 1rem; text-align: center; color: #666;">No conversations yet</div>';
+                return;
+            }
+
+            conversationsList.innerHTML = conversations.map(conv => `
+                <div style="padding: 1rem; border-bottom: 1px solid #e0e0e0; cursor: pointer; transition: 0.2s;" 
+                     onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='white'"
+                     onclick="openConversation(${conv.userId}, '${conv.userName}')">
+                    <div class="avatar avatar-sm" style="margin-bottom: 0.5rem;">
+                        ${conv.userName.split(' ').map(n => n[0]).join('').toUpperCase()}
+                    </div>
+                    <strong style="display: block;">${conv.userName}</strong>
+                    <small style="color: #999; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        ${conv.lastMessage}
+                    </small>
+                    <small style="color: #999; display: block; margin-top: 0.25rem;">
+                        ${app.formatTime(conv.timestamp)}
+                    </small>
+                </div>
+            `).join('');
+        }
+
+        function loadMeetings() {
+            const meetings = app.getMeetings().filter(m => 
+                m.participants.includes(app.currentUser.id) || m.userId === app.currentUser.id
+            );
+            const meetingsList = document.getElementById('meetingsList');
+
+            if (meetings.length === 0) {
+                meetingsList.innerHTML = '<div style="padding: 1rem; text-align: center; color: #666; font-size: 0.875rem;">No meetings scheduled</div>';
+                return;
+            }
+
+            meetingsList.innerHTML = meetings.map(meeting => `
+                <div style="padding: 1rem; border-bottom: 1px solid #e0e0e0; cursor: pointer; transition: 0.2s;"
+                     onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='white'"
+                     onclick="openMeeting(${meeting.id})">
+                    <strong style="display: block; color: var(--primary);">${meeting.title}</strong>
+                    <small style="color: #999; display: block; margin-top: 0.25rem;">
+                        📅 ${meeting.date} ${meeting.time}
+                    </small>
+                    <small style="color: #999; display: block;">
+                        👥 ${meeting.participants.length} participants
+                    </small>
+                </div>
+            `).join('');
+        }
+
+        function populateUserList() {
+            const users = app.getAllUsers().filter(u => u.id !== app.currentUser.id);
+            const selectUser = document.getElementById('selectUser');
+
+            selectUser.innerHTML = '<option value="">Choose a user...</option>' + users.map(user => `
+                <option value="${user.id}">${user.fullName} (${user.role})</option>
+            `).join('');
+        }
+
+        function openConversation(userId, userName) {
+            currentChat = userId;
+            currentChatUser = userName;
+            currentMeeting = null;
+
+            document.getElementById('chatHeader').textContent = `Chat with ${userName}`;
+            document.getElementById('meetingChatArea').style.display = 'none';
+
+            loadChatMessages();
+        }
+
+        function loadChatMessages() {
+            if (!currentChat) return;
+
+            const messages = app.getMessages(app.currentUser.id, currentChat);
+            const chatMessages = document.getElementById('chatMessages');
+
+            if (messages.length === 0) {
+                chatMessages.innerHTML = '<div style="text-align: center; color: #666; padding: 2rem;">No messages yet. Start the conversation!</div>';
+                return;
+            }
+
+            chatMessages.innerHTML = messages.map(msg => `
+                <div class="message ${msg.from === app.currentUser.id ? 'own' : ''}">
+                    <div class="message-bubble">
+                        ${msg.content}
+                        <div class="message-time">${app.formatTime(msg.timestamp)}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function sendMessage() {
+            if (!currentChat) {
+                app.showAlert('Please select a conversation first', 'warning');
+                return;
+            }
+
+            const messageInput = document.getElementById('messageInput');
+            const content = messageInput.value.trim();
+
+            if (!content) return;
+
+            app.sendMessage(app.currentUser.id, currentChat, content);
+            messageInput.value = '';
+            loadChatMessages();
+            loadConversations();
+        }
+
+        function startNewConversation() {
+            const userId = parseInt(document.getElementById('selectUser').value);
+            if (!userId) {
+                app.showAlert('Please select a user', 'warning');
+                return;
+            }
+
+            const user = app.getUserById(userId);
+            if (user) {
+                closeModal('newChatModal');
+                openConversation(userId, user.fullName);
+                document.getElementById('selectUser').value = '';
+            }
+        }
+
+        function openMeeting(meetingId) {
+            const meeting = app.getMeetingById(meetingId);
+            if (meeting) {
+                currentMeeting = meetingId;
+                currentChat = null;
+
+                document.getElementById('meetingChatHeader').textContent = meeting.title;
+                document.getElementById('meetingChatArea').style.display = 'block';
+
+                loadMeetingMessages();
+            }
+        }
+
+        function loadMeetingMessages() {
+            if (!currentMeeting) return;
+
+            const messages = app.getMeetingMessages(currentMeeting);
+            const meetingChatMessages = document.getElementById('meetingChatMessages');
+
+            if (messages.length === 0) {
+                meetingChatMessages.innerHTML = '<div style="text-align: center; color: #666; padding: 2rem;">No messages in this meeting yet</div>';
+                return;
+            }
+
+            meetingChatMessages.innerHTML = messages.map(msg => {
+                const sender = app.getUserById(msg.from);
+                return `
+                    <div class="message ${msg.from === app.currentUser.id ? 'own' : ''}">
+                        <div style="display: flex; gap: 0.5rem;">
+                            <div class="avatar avatar-sm" style="flex-shrink: 0;">
+                                ${msg.from === app.currentUser.id ? 'YOU' : (sender?.fullName.split(' ').map(n => n[0]).join('').toUpperCase() || 'U')}
+                            </div>
+                            <div>
+                                <div style="font-size: 0.75rem; color: #999; margin-bottom: 0.25rem;">
+                                    ${msg.from === app.currentUser.id ? 'You' : sender?.fullName}
+                                </div>
+                                <div class="message-bubble">
+                                    ${msg.content}
+                                    <div class="message-time">${app.formatTime(msg.timestamp)}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Scroll to bottom
+            meetingChatMessages.scrollTop = meetingChatMessages.scrollHeight;
+        }
+
+        function sendMeetingMessage() {
+            if (!currentMeeting) {
+                app.showAlert('Please select a meeting first', 'warning');
+                return;
+            }
+
+            const messageInput = document.getElementById('meetingMessageInput');
+            const content = messageInput.value.trim();
+
+            if (!content) return;
+
+            app.sendMessage(app.currentUser.id, null, content, currentMeeting);
+            messageInput.value = '';
+            loadMeetingMessages();
+        }
+
+        function handleCreateMeeting(event) {
+            event.preventDefault();
+
+            const meetingData = {
+                userId: app.currentUser.id,
+                title: document.getElementById('meetingTitle').value,
+                description: document.getElementById('meetingDescription').value,
+                date: document.getElementById('meetingDate').value,
+                time: document.getElementById('meetingTime').value
+            };
+
+            const result = app.createMeeting(meetingData);
+            if (result.success) {
+                app.showAlert('Meeting created successfully!', 'success');
+                closeModal('createMeetingModal');
+                document.getElementById('createMeetingForm').reset();
+                loadMeetings();
+            }
+        }
+    </script>
+</body>
+</html>

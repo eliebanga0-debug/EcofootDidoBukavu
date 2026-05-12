@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Ecofoot Bukavu</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="navbar">
+            <a href="index.html" class="navbar-brand">⚽ Ecofoot Bukavu</a>
+            <ul class="nav-menu">
+                <li><a href="admin-dashboard.html" class="active">Dashboard</a></li>
+                <li><a href="admin-settings.html">Paramètres</a></li>
+                <li><a href="audit-logs.html">Journaux</a></li>
+                <li><a href="staff-management.html">Staff</a></li>
+                <li><a href="player-directory.html">Joueurs</a></li>
+                <li><a href="live-chat.html">Messages</a></li>
+                <li><a href="payment.html">Paiements</a></li>
+                <li><a href="#" class="logout-btn" onclick="app.logout(); window.location.href='index.html';">Déconnexion</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div id="alerts"></div>
+
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h1>Admin Dashboard</h1>
+            <div class="profile-card" style="width: 300px; padding: 1rem;">
+                <div class="avatar" style="margin: 0 auto;"></div>
+                <div class="profile-name" id="adminName">Loading...</div>
+                <div class="profile-role">Administrator</div>
+            </div>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="row">
+            <div class="stat-box">
+                <div class="stat-label">Total Users</div>
+                <div class="stat-number" id="statsTotalUsers">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Students</div>
+                <div class="stat-number" id="statsStudents">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Staff Members</div>
+                <div class="stat-number" id="statsStaff">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Players</div>
+                <div class="stat-number" id="statsPlayers">0</div>
+            </div>
+        </div>
+
+        <!-- Revenue Metrics -->
+        <div class="row">
+            <div class="stat-box">
+                <div class="stat-label">Total Payments</div>
+                <div class="stat-number" id="statsTotalPayments">$0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Pending Payments</div>
+                <div class="stat-number" id="statsPendingPayments">$0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Completed Payments</div>
+                <div class="stat-number" id="statsCompleted">$0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Active Meetings</div>
+                <div class="stat-number" id="statsMeetings">0</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-button active" onclick="switchTab('overview')">Overview</button>
+            <button class="tab-button" onclick="switchTab('users')">Users</button>
+            <button class="tab-button" onclick="switchTab('financial')">Financial</button>
+            <button class="tab-button" onclick="switchTab('reports')">Reports</button>
+        </div>
+
+        <!-- Overview Tab -->
+        <div id="overview-content" class="tab-content active">
+            <div class="row">
+                <div class="card">
+                    <div class="card-header">System Status</div>
+                    <div class="card-body">
+                        <div style="margin-bottom: 1rem;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span>Platform Health</span>
+                                <strong>100%</strong>
+                            </div>
+                            <div style="background: #e0e0e0; height: 20px; border-radius: 4px; overflow: hidden;">
+                                <div style="background: var(--success); height: 100%; width: 100%;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <p style="font-size: 0.875rem; color: #666;">✓ All systems operational</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">Quick Actions</div>
+                    <div class="card-body">
+                        <button class="btn btn-primary btn-block" onclick="switchTab('users')" style="margin-bottom: 0.5rem;">
+                            👥 Manage Users
+                        </button>
+                        <button class="btn btn-primary btn-block" onclick="switchTab('financial')" style="margin-bottom: 0.5rem;">
+                            💰 View Financials
+                        </button>
+                        <button class="btn btn-secondary btn-block">
+                            📋 View Reports
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card" style="margin-top: 2rem;">
+                <div class="card-header">Recent Activity</div>
+                <div class="card-body">
+                    <div id="activityList">
+                        <div style="text-align: center; color: #666; padding: 2rem;">
+                            Loading recent activity...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Tab -->
+        <div id="users-content" class="tab-content">
+            <div class="card">
+                <div class="card-header">User Management</div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Phone</th>
+                                <th>Registered</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersList">
+                            <tr>
+                                <td colspan="7" style="text-align: center; color: #666; padding: 2rem;">
+                                    Loading users...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Financial Tab -->
+        <div id="financial-content" class="tab-content">
+            <div class="row">
+                <div class="card">
+                    <div class="card-header">Payment Distribution</div>
+                    <div class="card-body">
+                        <div id="paymentDistribution">
+                            <div style="text-align: center; color: #666; padding: 2rem;">
+                                Loading...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">Financial Summary</div>
+                    <div class="card-body">
+                        <div style="margin-bottom: 1rem;">
+                            <strong>Total Revenue</strong>
+                            <p style="font-size: 1.5rem; color: var(--success); margin-top: 0.5rem;" id="totalRevenue">$0</p>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <strong>Pending Payments</strong>
+                            <p style="font-size: 1.5rem; color: var(--warning); margin-top: 0.5rem;" id="pendingRevenue">$0</p>
+                        </div>
+                        <div>
+                            <strong>Average Transaction</strong>
+                            <p style="font-size: 1.5rem; color: var(--primary); margin-top: 0.5rem;" id="avgTransaction">$0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment History -->
+            <div class="card" style="margin-top: 2rem;">
+                <div class="card-header">Payment Transactions</div>
+                <div class="card-body">
+                    <div style="overflow-x: auto;">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>User</th>
+                                    <th>Description</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="paymentsListAdmin">
+                                <tr>
+                                    <td colspan="5" style="text-align: center; color: #666; padding: 2rem;">
+                                        No payments
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Tab -->
+        <div id="reports-content" class="tab-content">
+            <div class="card">
+                <div class="card-header">System Reports</div>
+                <div class="card-body">
+                    <div class="form-row">
+                        <button class="btn btn-primary" onclick="generateReport('users')">
+                            👥 User Report
+                        </button>
+                        <button class="btn btn-primary" onclick="generateReport('financial')">
+                            💰 Financial Report
+                        </button>
+                        <button class="btn btn-primary" onclick="generateReport('activity')">
+                            📊 Activity Report
+                        </button>
+                    </div>
+                    <div id="reportOutput" style="margin-top: 2rem; display: none;">
+                        <pre id="reportContent" style="background: #f5f5f5; padding: 1rem; border-radius: 4px; overflow-x: auto;"></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!app.currentUser || app.currentUser.role !== 'admin') {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const user = app.currentUser;
+            document.getElementById('adminName').textContent = user.fullName;
+
+            // Update avatar
+            const initials = user.fullName.split(' ').map(n => n[0]).join('').toUpperCase();
+            document.querySelectorAll('.avatar').forEach(avatar => {
+                if (avatar.textContent === '') {
+                    avatar.textContent = initials;
+                }
+            });
+
+            loadDashboardData();
+        });
+
+        function loadDashboardData() {
+            const stats = getStats();
+
+            document.getElementById('statsTotalUsers').textContent = stats.totalUsers;
+            document.getElementById('statsStudents').textContent = stats.totalStudents;
+            document.getElementById('statsStaff').textContent = stats.totalStaff;
+            document.getElementById('statsPlayers').textContent = stats.totalPlayers;
+
+            // Financial metrics
+            const completedPayments = app.payments.filter(p => p.status === 'completed');
+            const completedTotal = completedPayments.reduce((sum, p) => sum + p.amount, 0);
+            const pendingPayments = app.payments.filter(p => p.status === 'pending');
+            const pendingTotal = pendingPayments.reduce((sum, p) => sum + p.amount, 0);
+
+            document.getElementById('statsTotalPayments').textContent = `$${completedTotal.toFixed(2)}`;
+            document.getElementById('statsPendingPayments').textContent = `$${pendingTotal.toFixed(2)}`;
+            document.getElementById('statsCompleted').textContent = `$${completedTotal.toFixed(2)}`;
+            document.getElementById('statsMeetings').textContent = app.meetings.length;
+
+            loadRecentActivity();
+            loadUsersList();
+            loadFinancialData();
+        }
+
+        function loadRecentActivity() {
+            const activities = [
+                { user: app.users[1]?.fullName || 'User', action: 'Registered as student', time: '2 hours ago' },
+                { user: app.users[2]?.fullName || 'User', action: 'Made a payment', time: '4 hours ago' },
+                { user: app.users[3]?.fullName || 'User', action: 'Added to staff', time: '1 day ago' }
+            ];
+
+            const activityList = document.getElementById('activityList');
+            activityList.innerHTML = activities.map(act => `
+                <div style="padding: 1rem; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between;">
+                    <div>
+                        <strong>${act.user}</strong>
+                        <p style="color: #666; font-size: 0.875rem;">${act.action}</p>
+                    </div>
+                    <small style="color: #999;">${act.time}</small>
+                </div>
+            `).join('');
+        }
+
+        function loadUsersList() {
+            const usersList = document.getElementById('usersList');
+            if (app.users.length === 0) {
+                usersList.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #666; padding: 2rem;">No users</td></tr>';
+                return;
+            }
+
+            usersList.innerHTML = app.users.map(user => `
+                <tr>
+                    <td><strong>${user.fullName}</strong></td>
+                    <td>${user.email}</td>
+                    <td><span class="badge badge-primary">${user.role}</span></td>
+                    <td>${user.phone}</td>
+                    <td>${app.formatDate(user.registeredDate)}</td>
+                    <td><span class="badge badge-${user.active ? 'success' : 'danger'}">${user.active ? 'Active' : 'Inactive'}</span></td>
+                    <td>
+                        <button class="btn btn-secondary btn-sm">Edit</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function loadFinancialData() {
+            const completedPayments = app.payments.filter(p => p.status === 'completed');
+            const completedTotal = completedPayments.reduce((sum, p) => sum + p.amount, 0);
+            const pendingPayments = app.payments.filter(p => p.status === 'pending');
+            const pendingTotal = pendingPayments.reduce((sum, p) => sum + p.amount, 0);
+            const avgAmount = app.payments.length > 0 ? (completedTotal / completedPayments.length) : 0;
+
+            document.getElementById('totalRevenue').textContent = `$${completedTotal.toFixed(2)}`;
+            document.getElementById('pendingRevenue').textContent = `$${pendingTotal.toFixed(2)}`;
+            document.getElementById('avgTransaction').textContent = `$${avgAmount.toFixed(2)}`;
+
+            // Payment distribution
+            const distribution = {
+                completed: completedPayments.length,
+                pending: pendingPayments.length
+            };
+
+            const paymentDistribution = document.getElementById('paymentDistribution');
+            paymentDistribution.innerHTML = `
+                <div style="margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <strong>Completed</strong>
+                        <span>${distribution.completed}</span>
+                    </div>
+                    <div style="background: #e0e0e0; height: 20px; border-radius: 4px; overflow: hidden;">
+                        <div style="background: var(--success); height: 100%; width: ${distribution.completed > 0 ? 100 : 0}%;"></div>
+                    </div>
+                </div>
+                <div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <strong>Pending</strong>
+                        <span>${distribution.pending}</span>
+                    </div>
+                    <div style="background: #e0e0e0; height: 20px; border-radius: 4px; overflow: hidden;">
+                        <div style="background: var(--warning); height: 100%; width: ${distribution.pending > 0 ? 50 : 0}%;"></div>
+                    </div>
+                </div>
+            `;
+
+            // Load payments table
+            const paymentsListAdmin = document.getElementById('paymentsListAdmin');
+            if (app.payments.length === 0) {
+                paymentsListAdmin.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #666; padding: 2rem;">No payments</td></tr>';
+                return;
+            }
+
+            paymentsListAdmin.innerHTML = app.payments.slice(-10).reverse().map(p => {
+                const user = app.getUserById(p.userId);
+                return `
+                    <tr>
+                        <td>${app.formatDate(p.date)}</td>
+                        <td>${user?.fullName || 'Unknown'}</td>
+                        <td>${p.description}</td>
+                        <td>$${p.amount.toFixed(2)}</td>
+                        <td><span class="badge badge-${p.status === 'completed' ? 'success' : 'warning'}">${p.status}</span></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function generateReport(type) {
+            let report = '';
+
+            if (type === 'users') {
+                report = 'USER REPORT - ' + new Date().toLocaleString() + '\n';
+                report += '='.repeat(50) + '\n\n';
+                report += `Total Users: ${app.users.length}\n`;
+                report += `Students: ${app.students.length}\n`;
+                report += `Staff: ${app.staff.length}\n`;
+                report += `Parents: ${app.parents.length}\n`;
+                report += `Admins: ${app.users.filter(u => u.role === 'admin').length}\n\n`;
+                report += 'User List:\n';
+                app.users.forEach(u => {
+                    report += `- ${u.fullName} (${u.role}) - ${u.email}\n`;
+                });
+            } else if (type === 'financial') {
+                report = 'FINANCIAL REPORT - ' + new Date().toLocaleString() + '\n';
+                report += '='.repeat(50) + '\n\n';
+                const completed = app.payments.filter(p => p.status === 'completed');
+                const pending = app.payments.filter(p => p.status === 'pending');
+                const completedTotal = completed.reduce((sum, p) => sum + p.amount, 0);
+                const pendingTotal = pending.reduce((sum, p) => sum + p.amount, 0);
+                
+                report += `Total Payments: ${app.payments.length}\n`;
+                report += `Completed: ${completed.length} ($${completedTotal.toFixed(2)})\n`;
+                report += `Pending: ${pending.length} ($${pendingTotal.toFixed(2)})\n`;
+                report += `Total Revenue: $${completedTotal.toFixed(2)}\n\n`;
+                report += 'Recent Transactions:\n';
+                app.payments.slice(-5).forEach(p => {
+                    const user = app.getUserById(p.userId);
+                    report += `- ${app.formatDate(p.date)} | ${user?.fullName} | $${p.amount.toFixed(2)} | ${p.status}\n`;
+                });
+            } else if (type === 'activity') {
+                report = 'ACTIVITY REPORT - ' + new Date().toLocaleString() + '\n';
+                report += '='.repeat(50) + '\n\n';
+                report += `Total Messages: ${app.messages.length}\n`;
+                report += `Total Meetings: ${app.meetings.length}\n`;
+                report += `Total Players: ${app.players.length}\n`;
+                report += `Active Users: ${app.users.filter(u => u.active).length}\n`;
+            }
+
+            document.getElementById('reportContent').textContent = report;
+            document.getElementById('reportOutput').style.display = 'block';
+            
+            app.showAlert('Report generated successfully!', 'success');
+        }
+    </script>
+</body>
+</html>

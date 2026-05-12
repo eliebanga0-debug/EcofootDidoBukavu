@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paramètres Administrateur - Ecofoot Bukavu</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .settings-container {
+            max-width: 1000px;
+            margin: 2rem auto;
+        }
+        .setting-section {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            padding: 2rem;
+        }
+        .setting-section h3 {
+            border-bottom: 2px solid #2ecc71;
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+        .setting-label {
+            font-weight: 500;
+            color: #333;
+        }
+        .setting-value {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .toggle-switch {
+            width: 50px;
+            height: 28px;
+            background: #ccc;
+            border-radius: 14px;
+            cursor: pointer;
+            position: relative;
+            transition: background 0.3s;
+        }
+        .toggle-switch.active {
+            background: #2ecc71;
+        }
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: left 0.3s;
+        }
+        .toggle-switch.active::after {
+            left: 24px;
+        }
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-card.warning {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+        .stat-card.danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+        .danger-zone {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+        .danger-zone h4 {
+            color: #d39e00;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="navbar">
+            <a href="index.html" class="navbar-brand">⚽ Ecofoot Bukavu</a>
+            <ul class="nav-menu">
+                <li><a href="admin-dashboard.html">Dashboard</a></li>
+                <li><a href="admin-settings.html" class="active">Paramètres</a></li>
+                <li><a href="audit-logs.html">Journaux</a></li>
+                <li><a href="staff-management.html">Staff</a></li>
+                <li><a href="live-chat.html">Messages</a></li>
+                <li><a href="#" class="logout-btn" onclick="handleLogout();">Déconnexion</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container settings-container">
+        <div id="alerts"></div>
+
+        <!-- Header -->
+        <div style="margin-bottom: 3rem;">
+            <h1>Paramètres Administrateur</h1>
+            <p style="color: #666;">Gérez les paramètres du système Ecofoot Bukavu</p>
+        </div>
+
+        <!-- Statistics Section -->
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div style="font-size: 2rem; margin-bottom: 0.5rem;">👥</div>
+                <div style="font-size: 0.9rem; opacity: 0.9;">Total Utilisateurs</div>
+                <div style="font-size: 2rem; font-weight: bold;" id="statTotalUsers">0</div>
+            </div>
+            <div class="stat-card">
+                <div style="font-size: 2rem; margin-bottom: 0.5rem;">📊</div>
+                <div style="font-size: 0.9rem; opacity: 0.9;">Paiements Complétés</div>
+                <div style="font-size: 2rem; font-weight: bold;" id="statCompletedPayments">$0</div>
+            </div>
+            <div class="stat-card warning">
+                <div style="font-size: 2rem; margin-bottom: 0.5rem;">⏳</div>
+                <div style="font-size: 0.9rem; opacity: 0.9;">Paiements en attente</div>
+                <div style="font-size: 2rem; font-weight: bold;" id="statPendingPayments">$0</div>
+            </div>
+            <div class="stat-card danger" id="failedLoginsCard" style="display: none;">
+                <div style="font-size: 2rem; margin-bottom: 0.5rem;">⚠️</div>
+                <div style="font-size: 0.9rem; opacity: 0.9;">Tentatives Échouées</div>
+                <div style="font-size: 2rem; font-weight: bold;" id="statFailedLogins">0</div>
+            </div>
+        </div>
+
+        <!-- System Settings Section -->
+        <div class="setting-section">
+            <h3>⚙️ Paramètres du Système</h3>
+            
+            <div class="setting-item">
+                <div>
+                    <div class="setting-label">Nom du Site</div>
+                    <div style="font-size: 0.9rem; color: #666;">Nom affiché partout sur la plateforme</div>
+                </div>
+                <div class="setting-value">
+                    <input type="text" id="siteName" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; width: 200px;">
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div>
+                    <div class="setting-label">Autoriser les Inscriptions</div>
+                    <div style="font-size: 0.9rem; color: #666;">Permettre aux nouveaux utilisateurs de s'inscrire</div>
+                </div>
+                <div class="setting-value">
+                    <div class="toggle-switch" id="allowRegistration" onclick="toggleRegistration()"></div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div>
+                    <div class="setting-label">Mode Maintenance</div>
+                    <div style="font-size: 0.9rem; color: #666;">Activer le mode maintenance (affecte tous les utilisateurs)</div>
+                </div>
+                <div class="setting-value">
+                    <div class="toggle-switch danger" id="maintenanceMode" onclick="toggleMaintenanceMode()"></div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div>
+                    <div class="setting-label">Taille Max d'Upload</div>
+                    <div style="font-size: 0.9rem; color: #666;">Taille maximale des fichiers en MB</div>
+                </div>
+                <div class="setting-value">
+                    <input type="number" id="maxUploadSize" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; width: 100px;" min="1" max="100">
+                </div>
+            </div>
+
+            <div style="margin-top: 1.5rem;">
+                <button onclick="saveSettings()" class="btn btn-primary">Enregistrer les Paramètres</button>
+            </div>
+        </div>
+
+        <!-- User Management Section -->
+        <div class="setting-section">
+            <h3>👥 Gestion des Utilisateurs</h3>
+            
+            <div style="margin-bottom: 1rem;">
+                <div style="margin-bottom: 1rem;">
+                    <label>Rechercher un utilisateur:</label>
+                    <input type="text" id="userSearchInput" placeholder="Email ou nom complet" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; width: 300px;">
+                </div>
+                <div id="usersListContainer" style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; border-radius: 4px; padding: 1rem;">
+                    <p style="text-align: center; color: #999;">Commencez à chercher...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Financial Reports Section -->
+        <div class="setting-section">
+            <h3>💰 Rapports Financiers</h3>
+            
+            <button onclick="generateFinancialReport()" class="btn btn-primary">Générer Rapport Financier</button>
+            
+            <div id="financialReport" style="margin-top: 1.5rem; display: none;">
+                <div class="row">
+                    <div class="card" style="flex: 1;">
+                        <div class="card-body" style="text-align: center;">
+                            <div style="font-size: 0.9rem; color: #666; margin-bottom: 0.5rem;">Revenu Total</div>
+                            <div style="font-size: 2rem; font-weight: bold; color: #2ecc71;" id="reportTotalRevenue">$0</div>
+                        </div>
+                    </div>
+                    <div class="card" style="flex: 1;">
+                        <div class="card-body" style="text-align: center;">
+                            <div style="font-size: 0.9rem; color: #666; margin-bottom: 0.5rem;">Paiements Complétés</div>
+                            <div style="font-size: 2rem; font-weight: bold; color: #27ae60;" id="reportCompleted">0</div>
+                        </div>
+                    </div>
+                    <div class="card" style="flex: 1;">
+                        <div class="card-body" style="text-align: center;">
+                            <div style="font-size: 0.9rem; color: #666; margin-bottom: 0.5rem;">Paiements en Attente</div>
+                            <div style="font-size: 2rem; font-weight: bold; color: #f39c12;" id="reportPending">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="danger-zone" style="margin-bottom: 2rem;">
+            <h4>⚠️ Zone Dangereuse</h4>
+            <p>Les actions ci-dessous sont irréversibles. Procédez avec prudence.</p>
+            
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <button onclick="exportData()" class="btn btn-secondary">📥 Exporter les Données</button>
+                <button onclick="clearAllData()" class="btn" style="background: #e74c3c; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 4px; cursor: pointer;">🗑️ Supprimer TOUTES les Données</button>
+            </div>
+        </div>
+
+        <!-- Notifications Section -->
+        <div class="setting-section">
+            <h3>🔔 Notifications Système</h3>
+            
+            <div id="notificationsList" style="max-height: 300px; overflow-y: auto;">
+                <p style="text-align: center; color: #999;">Aucune notification</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        // Check if user is admin
+        function checkAdminAccess() {
+            if (!app.isAdmin()) {
+                document.body.innerHTML = '<div style="padding: 2rem; text-align: center;"><h1>Accès Refusé</h1><p>Seuls les administrateurs peuvent accéder à cette page.</p><a href="index.html" class="btn btn-primary">Retour à l\'accueil</a></div>';
+                return false;
+            }
+            return true;
+        }
+
+        function handleLogout() {
+            app.logout();
+            window.location.href = 'index.html';
+        }
+
+        function loadSettings() {
+            const settings = app.getSystemSettings();
+            document.getElementById('siteName').value = settings.siteName;
+            document.getElementById('allowRegistration').classList.toggle('active', settings.allowRegistration);
+            document.getElementById('maintenanceMode').classList.toggle('active', settings.maintenanceMode);
+            document.getElementById('maxUploadSize').value = settings.maxUploadSize / 1024 / 1024;
+            
+            // Load stats
+            const stats = getStats();
+            document.getElementById('statTotalUsers').textContent = stats.totalUsers;
+            
+            // Calculate completed payments total
+            const completedTotal = app.payments
+                .filter(p => p.status === 'completed')
+                .reduce((sum, p) => sum + (p.amount || 0), 0);
+            document.getElementById('statCompletedPayments').textContent = `$${completedTotal.toFixed(2)}`;
+            
+            const pendingTotal = app.payments
+                .filter(p => p.status === 'pending')
+                .reduce((sum, p) => sum + (p.amount || 0), 0);
+            document.getElementById('statPendingPayments').textContent = `$${pendingTotal.toFixed(2)}`;
+            
+            // Load notifications
+            loadNotifications();
+        }
+
+        function loadNotifications() {
+            const notifications = app.getNotifications();
+            const container = document.getElementById('notificationsList');
+            
+            if (notifications.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999;">Aucune notification</p>';
+                return;
+            }
+            
+            container.innerHTML = notifications.slice(0, 10).map(n => `
+                <div style="padding: 1rem; border-bottom: 1px solid #ddd; background: ${n.read ? 'white' : '#f0f8ff'};">
+                    <div style="font-weight: bold; color: ${n.type === 'success' ? '#2ecc71' : n.type === 'danger' ? '#e74c3c' : '#333'};">${n.title}</div>
+                    <div style="font-size: 0.9rem; color: #666;">${n.message}</div>
+                    <div style="font-size: 0.8rem; color: #999;">${new Date(n.timestamp).toLocaleString('fr-FR')}</div>
+                </div>
+            `).join('');
+        }
+
+        function toggleRegistration() {
+            const toggle = document.getElementById('allowRegistration');
+            toggle.classList.toggle('active');
+        }
+
+        function toggleMaintenanceMode() {
+            const toggle = document.getElementById('maintenanceMode');
+            toggle.classList.toggle('active');
+        }
+
+        function saveSettings() {
+            try {
+                const updates = {
+                    siteName: document.getElementById('siteName').value,
+                    allowRegistration: document.getElementById('allowRegistration').classList.contains('active'),
+                    maintenanceMode: document.getElementById('maintenanceMode').classList.contains('active'),
+                    maxUploadSize: parseFloat(document.getElementById('maxUploadSize').value) * 1024 * 1024
+                };
+                
+                app.updateSystemSettings(updates);
+                app.showAlert('Paramètres enregistrés avec succès!', 'success');
+                loadSettings();
+            } catch (error) {
+                app.showAlert(error.message, 'danger');
+            }
+        }
+
+        function generateFinancialReport() {
+            try {
+                const report = app.getFinancialReport();
+                document.getElementById('reportTotalRevenue').textContent = `$${report.totalRevenue.toFixed(2)}`;
+                document.getElementById('reportCompleted').textContent = report.totalCompleted;
+                document.getElementById('reportPending').textContent = report.totalPending;
+                document.getElementById('financialReport').style.display = 'block';
+                app.showAlert('Rapport généré avec succès!', 'success');
+            } catch (error) {
+                app.showAlert(error.message, 'danger');
+            }
+        }
+
+        function exportData() {
+            try {
+                const data = app.exportSystemData();
+                const dataStr = JSON.stringify(data, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `ecofoot-backup-${new Date().getTime()}.json`;
+                link.click();
+                app.showAlert('Données exportées avec succès!', 'success');
+            } catch (error) {
+                app.showAlert(error.message, 'danger');
+            }
+        }
+
+        function clearAllData() {
+            try {
+                const confirmed = confirm('⚠️ ATTENTION: Cette action supprimera TOUTES les données du système!\n\nÊtes-vous vraiment sûr?');
+                if (confirmed) {
+                    const confirmed2 = confirm('CONFIRMEZ ENCORE UNE FOIS - Cette action est IRRÉVERSIBLE!');
+                    if (confirmed2) {
+                        app.clearAllData();
+                        app.showAlert('Toutes les données ont été supprimées!', 'warning');
+                        setTimeout(() => window.location.href = 'index.html', 2000);
+                    }
+                }
+            } catch (error) {
+                app.showAlert(error.message, 'danger');
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            if (checkAdminAccess()) {
+                loadSettings();
+            }
+        });
+    </script>
+</body>
+</html>

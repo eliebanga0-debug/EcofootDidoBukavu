@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Management - Ecofoot Bukavu</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="navbar">
+            <a href="index.html" class="navbar-brand">⚽ Ecofoot Bukavu</a>
+            <ul class="nav-menu">
+                <li><a href="admin-dashboard.html">Dashboard</a></li>
+                <li><a href="staff-management.html">Staff</a></li>
+                <li><a href="player-directory.html">Players</a></li>
+                <li><a href="live-chat.html">Messages</a></li>
+                <li><a href="#" class="logout-btn" onclick="app.logout(); window.location.href='index.html';">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div id="alerts"></div>
+
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h1>Staff Management</h1>
+            <button class="btn btn-primary" onclick="openModal('addStaffModal')">+ Add Staff Member</button>
+        </div>
+
+        <!-- Filters -->
+        <div class="card" style="margin-bottom: 2rem;">
+            <div class="card-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="filterDepartment">Department</label>
+                        <select id="filterDepartment" onchange="filterStaff()">
+                            <option value="">All Departments</option>
+                            <option value="Administration">Administration</option>
+                            <option value="Coaching">Coaching</option>
+                            <option value="Medical">Medical</option>
+                            <option value="Training">Training</option>
+                            <option value="Operations">Operations</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="filterStatus">Status</label>
+                        <select id="filterStatus" onchange="filterStaff()">
+                            <option value="">All Statuses</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="searchStaff">Search</label>
+                        <input type="text" id="searchStaff" placeholder="Search by name or email..." onkeyup="filterStaff()">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="row">
+            <div class="stat-box">
+                <div class="stat-label">Total Staff</div>
+                <div class="stat-number" id="statsTotalStaff">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Active Staff</div>
+                <div class="stat-number" id="statsActiveStaff">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Departments</div>
+                <div class="stat-number" id="statsDepartments">0</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-button active" onclick="switchTab('list')">Staff List</button>
+            <button class="tab-button" onclick="switchTab('departments')">Departments</button>
+            <button class="tab-button" onclick="switchTab('performance')">Performance</button>
+        </div>
+
+        <!-- Staff List Tab -->
+        <div id="list-content" class="tab-content active">
+            <div class="card">
+                <div class="card-header">All Staff Members</div>
+                <div class="card-body">
+                    <div style="overflow-x: auto;">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Department</th>
+                                    <th>Phone</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="staffList">
+                                <tr>
+                                    <td colspan="6" style="text-align: center; color: #666; padding: 2rem;">
+                                        No staff members found
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Departments Tab -->
+        <div id="departments-content" class="tab-content">
+            <div class="row" id="departmentsList">
+                <div style="grid-column: 1/-1; text-align: center; color: #666; padding: 2rem;">
+                    Loading departments...
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Tab -->
+        <div id="performance-content" class="tab-content">
+            <div class="card">
+                <div class="card-header">Staff Performance</div>
+                <div class="card-body">
+                    <div style="overflow-x: auto;">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Staff Member</th>
+                                    <th>Department</th>
+                                    <th>Performance Score</th>
+                                    <th>Projects</th>
+                                    <th>Attendance</th>
+                                </tr>
+                            </thead>
+                            <tbody id="performanceList">
+                                <tr>
+                                    <td colspan="5" style="text-align: center; color: #666; padding: 2rem;">
+                                        No performance data available
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Staff Modal -->
+    <div id="addStaffModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Staff Member</h3>
+                <button class="close-btn" onclick="closeModal('addStaffModal')">×</button>
+            </div>
+            <form id="addStaffForm" onsubmit="handleAddStaff(event)">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="staffName">Full Name *</label>
+                        <input type="text" id="staffName" placeholder="Enter full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="staffEmail">Email *</label>
+                        <input type="email" id="staffEmail" placeholder="Enter email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="staffPhone">Phone *</label>
+                        <input type="tel" id="staffPhone" placeholder="Enter phone number" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="staffDepartment">Department *</label>
+                        <select id="staffDepartment" required>
+                            <option value="">Select department</option>
+                            <option value="Administration">Administration</option>
+                            <option value="Coaching">Coaching</option>
+                            <option value="Medical">Medical</option>
+                            <option value="Training">Training</option>
+                            <option value="Operations">Operations</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="staffPosition">Position/Title *</label>
+                        <input type="text" id="staffPosition" placeholder="e.g., Head Coach, Manager" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="staffPassword">Password *</label>
+                        <input type="password" id="staffPassword" placeholder="Set password" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" onclick="closeModal('addStaffModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Staff Member</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Staff Modal -->
+    <div id="editStaffModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Staff Member</h3>
+                <button class="close-btn" onclick="closeModal('editStaffModal')">×</button>
+            </div>
+            <form id="editStaffForm" onsubmit="handleEditStaff(event)">
+                <div class="modal-body">
+                    <input type="hidden" id="editStaffId">
+                    <div class="form-group">
+                        <label for="editStaffName">Full Name</label>
+                        <input type="text" id="editStaffName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editStaffEmail">Email</label>
+                        <input type="email" id="editStaffEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editStaffPhone">Phone</label>
+                        <input type="tel" id="editStaffPhone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editStaffDepartment">Department</label>
+                        <select id="editStaffDepartment" required>
+                            <option value="Administration">Administration</option>
+                            <option value="Coaching">Coaching</option>
+                            <option value="Medical">Medical</option>
+                            <option value="Training">Training</option>
+                            <option value="Operations">Operations</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editStaffStatus">Status</label>
+                        <select id="editStaffStatus">
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" onclick="closeModal('editStaffModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        let staffData = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!app.currentUser || app.currentUser.role !== 'admin' && app.currentUser.role !== 'staff') {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            loadStaff();
+            updateStats();
+        });
+
+        function loadStaff() {
+            staffData = app.getStaff();
+            renderStaffList();
+            loadDepartments();
+            loadPerformance();
+        }
+
+        function renderStaffList() {
+            const staffList = document.getElementById('staffList');
+            if (staffData.length === 0) {
+                staffList.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #666; padding: 2rem;">No staff members found</td></tr>';
+                return;
+            }
+
+            staffList.innerHTML = staffData.map(staff => `
+                <tr>
+                    <td><strong>${staff.fullName}</strong></td>
+                    <td>${staff.email}</td>
+                    <td><span class="badge badge-primary">${staff.department}</span></td>
+                    <td>${staff.phone}</td>
+                    <td><span class="badge badge-${staff.active ? 'success' : 'danger'}">${staff.active ? 'Active' : 'Inactive'}</span></td>
+                    <td class="table-action">
+                        <button class="btn btn-secondary btn-sm" onclick="editStaff(${staff.id})">Edit</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteStaff(${staff.id})">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function loadDepartments() {
+            const departments = [...new Set(staffData.map(s => s.department))];
+            const departmentsList = document.getElementById('departmentsList');
+            
+            departmentsList.innerHTML = departments.map(dept => {
+                const count = staffData.filter(s => s.department === dept).length;
+                return `
+                    <div class="card">
+                        <div class="card-body">
+                            <h4>${dept}</h4>
+                            <p style="font-size: 2rem; color: var(--primary); font-weight: bold;">${count}</p>
+                            <p style="color: #666;">Staff Members</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            if (departments.length === 0) {
+                departmentsList.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #666; padding: 2rem;">No departments yet</div>';
+            }
+        }
+
+        function loadPerformance() {
+            const performanceList = document.getElementById('performanceList');
+            if (staffData.length === 0) {
+                performanceList.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #666; padding: 2rem;">No performance data available</td></tr>';
+                return;
+            }
+
+            performanceList.innerHTML = staffData.map(staff => `
+                <tr>
+                    <td><strong>${staff.fullName}</strong></td>
+                    <td>${staff.department}</td>
+                    <td>
+                        <div style="background: #e0e0e0; height: 20px; border-radius: 4px; overflow: hidden; width: 100px;">
+                            <div style="background: var(--primary); height: 100%; width: ${Math.random() * 100}%;"></div>
+                        </div>
+                    </td>
+                    <td>${Math.floor(Math.random() * 10)}</td>
+                    <td>${Math.floor(90 + Math.random() * 10)}%</td>
+                </tr>
+            `).join('');
+        }
+
+        function updateStats() {
+            document.getElementById('statsTotalStaff').textContent = staffData.length;
+            document.getElementById('statsActiveStaff').textContent = staffData.filter(s => s.active).length;
+            const departments = [...new Set(staffData.map(s => s.department))];
+            document.getElementById('statsDepartments').textContent = departments.length;
+        }
+
+        function filterStaff() {
+            const search = document.getElementById('searchStaff').value.toLowerCase();
+            const department = document.getElementById('filterDepartment').value;
+            const status = document.getElementById('filterStatus').value;
+
+            const filtered = staffData.filter(staff => {
+                const matchesSearch = !search || staff.fullName.toLowerCase().includes(search) || staff.email.toLowerCase().includes(search);
+                const matchesDept = !department || staff.department === department;
+                const matchesStatus = !status || (status === 'active' ? staff.active : !staff.active);
+                return matchesSearch && matchesDept && matchesStatus;
+            });
+
+            const staffList = document.getElementById('staffList');
+            if (filtered.length === 0) {
+                staffList.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #666; padding: 2rem;">No staff members found</td></tr>';
+                return;
+            }
+
+            staffList.innerHTML = filtered.map(staff => `
+                <tr>
+                    <td><strong>${staff.fullName}</strong></td>
+                    <td>${staff.email}</td>
+                    <td><span class="badge badge-primary">${staff.department}</span></td>
+                    <td>${staff.phone}</td>
+                    <td><span class="badge badge-${staff.active ? 'success' : 'danger'}">${staff.active ? 'Active' : 'Inactive'}</span></td>
+                    <td class="table-action">
+                        <button class="btn btn-secondary btn-sm" onclick="editStaff(${staff.id})">Edit</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteStaff(${staff.id})">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function handleAddStaff(event) {
+            event.preventDefault();
+            const staffData = {
+                fullName: document.getElementById('staffName').value,
+                email: document.getElementById('staffEmail').value,
+                phone: document.getElementById('staffPhone').value,
+                department: document.getElementById('staffDepartment').value,
+                position: document.getElementById('staffPosition').value,
+                password: document.getElementById('staffPassword').value,
+                role: 'staff'
+            };
+
+            const result = app.addStaff(staffData);
+            if (result.success) {
+                app.showAlert('Staff member added successfully!', 'success');
+                closeModal('addStaffModal');
+                document.getElementById('addStaffForm').reset();
+                loadStaff();
+                updateStats();
+            }
+        }
+
+        function editStaff(staffId) {
+            const staff = staffData.find(s => s.id === staffId);
+            if (staff) {
+                document.getElementById('editStaffId').value = staff.id;
+                document.getElementById('editStaffName').value = staff.fullName;
+                document.getElementById('editStaffEmail').value = staff.email;
+                document.getElementById('editStaffPhone').value = staff.phone;
+                document.getElementById('editStaffDepartment').value = staff.department;
+                document.getElementById('editStaffStatus').value = staff.active ? 'active' : 'inactive';
+                openModal('editStaffModal');
+            }
+        }
+
+        function handleEditStaff(event) {
+            event.preventDefault();
+            const staffId = parseInt(document.getElementById('editStaffId').value);
+            const updates = {
+                fullName: document.getElementById('editStaffName').value,
+                email: document.getElementById('editStaffEmail').value,
+                phone: document.getElementById('editStaffPhone').value,
+                department: document.getElementById('editStaffDepartment').value,
+                active: document.getElementById('editStaffStatus').value === 'active'
+            };
+
+            app.updateStaff(staffId, updates);
+            app.showAlert('Staff member updated successfully!', 'success');
+            closeModal('editStaffModal');
+            loadStaff();
+        }
+
+        function deleteStaff(staffId) {
+            if (confirm('Are you sure you want to delete this staff member?')) {
+                app.deleteUser(staffId);
+                app.showAlert('Staff member deleted successfully!', 'success');
+                loadStaff();
+                updateStats();
+            }
+        }
+    </script>
+</body>
+</html>

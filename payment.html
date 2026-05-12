@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment System - Ecofoot Bukavu</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="navbar">
+            <a href="index.html" class="navbar-brand">⚽ Ecofoot Bukavu</a>
+            <ul class="nav-menu">
+                <li><a href="student-dashboard.html">Dashboard</a></li>
+                <li><a href="live-chat.html">Messages</a></li>
+                <li><a href="player-directory.html">Directory</a></li>
+                <li><a href="payment.html">Payments</a></li>
+                <li><a href="#" class="logout-btn" onclick="app.logout(); window.location.href='index.html';">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div id="alerts"></div>
+
+        <!-- Header -->
+        <h1 style="margin-bottom: 2rem;">Payment System</h1>
+
+        <!-- Stats -->
+        <div class="row">
+            <div class="stat-box">
+                <div class="stat-label">Total Payments</div>
+                <div class="stat-number" id="statsTotalPayments">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Completed</div>
+                <div class="stat-number" id="statsCompletedPayments">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Pending</div>
+                <div class="stat-number" id="statsPendingPayments">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Total Paid</div>
+                <div class="stat-number" id="statsTotalPaid">$0</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-button active" onclick="switchTab('overview')">Overview</button>
+            <button class="tab-button" onclick="switchTab('history')">Payment History</button>
+            <button class="tab-button" onclick="switchTab('new')">Make Payment</button>
+            <button class="tab-button" onclick="switchTab('invoices')">Invoices</button>
+        </div>
+
+        <!-- Overview Tab -->
+        <div id="overview-content" class="tab-content active">
+            <div class="row">
+                <div class="card">
+                    <div class="card-header">Payment Summary</div>
+                    <div class="card-body">
+                        <div style="margin-bottom: 2rem;">
+                            <h4>Payment Status Breakdown</h4>
+                            <div style="margin-bottom: 1.5rem;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <span>Completed Payments</span>
+                                    <strong id="completedPercent">0%</strong>
+                                </div>
+                                <div style="background: #e0e0e0; height: 20px; border-radius: 4px; overflow: hidden;">
+                                    <div id="completedBar" style="background: var(--success); height: 100%; width: 0%;"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <span>Pending Payments</span>
+                                    <strong id="pendingPercent">0%</strong>
+                                </div>
+                                <div style="background: #e0e0e0; height: 20px; border-radius: 4px; overflow: hidden;">
+                                    <div id="pendingBar" style="background: var(--warning); height: 100%; width: 0%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">Quick Actions</div>
+                    <div class="card-body">
+                        <button class="btn btn-primary btn-block" onclick="switchTab('new')" style="margin-bottom: 1rem;">
+                            💳 Make a Payment
+                        </button>
+                        <button class="btn btn-secondary btn-block" onclick="switchTab('history')" style="margin-bottom: 1rem;">
+                            📊 View History
+                        </button>
+                        <button class="btn btn-secondary btn-block">
+                            📥 Download Receipt
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="card" style="margin-top: 2rem;">
+                <div class="card-header">Recent Transactions</div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentTransactions">
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: #666; padding: 2rem;">
+                                    No recent transactions
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment History Tab -->
+        <div id="history-content" class="tab-content">
+            <div class="card">
+                <div class="card-header">Payment History</div>
+                <div class="card-body">
+                    <div style="margin-bottom: 2rem;">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="filterStatus">Status</label>
+                                <select id="filterStatus" onchange="filterPayments()">
+                                    <option value="">All</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="pending">Pending</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="filterDate">Date Range</label>
+                                <select id="filterDate" onchange="filterPayments()">
+                                    <option value="">All Time</option>
+                                    <option value="30">Last 30 Days</option>
+                                    <option value="90">Last 90 Days</option>
+                                    <option value="365">Last Year</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="overflow-x: auto;">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Transaction ID</th>
+                                    <th>Description</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="paymentHistoryList">
+                                <tr>
+                                    <td colspan="6" style="text-align: center; color: #666; padding: 2rem;">
+                                        No payment history
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Make Payment Tab -->
+        <div id="new-content" class="tab-content">
+            <div class="card" style="max-width: 600px;">
+                <div class="card-header">Make a Payment</div>
+                <div class="card-body">
+                    <form id="paymentForm" onsubmit="handlePayment(event)">
+                        <div class="form-group">
+                            <label for="paymentType">Payment Type *</label>
+                            <select id="paymentType" onchange="updatePaymentDescription()" required>
+                                <option value="">Select payment type</option>
+                                <option value="registration">Registration Fee</option>
+                                <option value="monthly">Monthly Fees</option>
+                                <option value="training">Training Program</option>
+                                <option value="uniform">Uniform</option>
+                                <option value="event">Event Registration</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="paymentDescription">Description</label>
+                            <input type="text" id="paymentDescription" placeholder="Payment description">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="paymentAmount">Amount ($) *</label>
+                            <input type="number" id="paymentAmount" placeholder="0.00" step="0.01" min="0" required>
+                        </div>
+
+                        <div class="card" style="background: #f9f9f9; margin-bottom: 2rem;">
+                            <div class="card-body">
+                                <h4>Payment Method</h4>
+                                <div style="margin: 1rem 0;">
+                                    <label style="display: flex; align-items: center; margin-bottom: 1rem;">
+                                        <input type="radio" name="paymentMethod" value="card" checked>
+                                        <span style="margin-left: 0.5rem;">💳 Credit/Debit Card</span>
+                                    </label>
+                                    <label style="display: flex; align-items: center; margin-bottom: 1rem;">
+                                        <input type="radio" name="paymentMethod" value="bank">
+                                        <span style="margin-left: 0.5rem;">🏦 Bank Transfer</span>
+                                    </label>
+                                    <label style="display: flex; align-items: center;">
+                                        <input type="radio" name="paymentMethod" value="mobile">
+                                        <span style="margin-left: 0.5rem;">📱 Mobile Money</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card Details -->
+                        <div id="cardSection">
+                            <div class="form-group">
+                                <label for="cardName">Cardholder Name *</label>
+                                <input type="text" id="cardName" placeholder="Name on card">
+                            </div>
+                            <div class="form-group">
+                                <label for="cardNumber">Card Number *</label>
+                                <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19">
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="cardExpiry">Expiry Date *</label>
+                                    <input type="text" id="cardExpiry" placeholder="MM/YY" maxlength="5">
+                                </div>
+                                <div class="form-group">
+                                    <label for="cardCVV">CVV *</label>
+                                    <input type="text" id="cardCVV" placeholder="123" maxlength="3">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Terms -->
+                        <div class="form-group" style="margin-top: 2rem;">
+                            <label style="display: flex; align-items: flex-start;">
+                                <input type="checkbox" required>
+                                <span style="margin-left: 0.5rem; font-size: 0.875rem;">
+                                    I agree to the terms and conditions and understand the payment will be processed immediately.
+                                </span>
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block">Process Payment</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Invoices Tab -->
+        <div id="invoices-content" class="tab-content">
+            <div class="card">
+                <div class="card-header">Invoices</div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Invoice #</th>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="invoicesList">
+                            <tr>
+                                <td colspan="6" style="text-align: center; color: #666; padding: 2rem;">
+                                    No invoices available
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <div class="modal-header">
+                <h3>Payment Successful ✓</h3>
+            </div>
+            <div class="modal-body">
+                <div style="font-size: 3rem; margin: 2rem 0;">✅</div>
+                <p style="margin-bottom: 1rem;">Your payment has been processed successfully!</p>
+                <div id="successDetails" style="background: #f5f5f5; padding: 1rem; border-radius: 4px; text-align: left; margin-bottom: 1rem;">
+                    <p><strong>Amount:</strong> <span id="successAmount">$0.00</span></p>
+                    <p><strong>Transaction ID:</strong> <span id="successTxnId">-</span></p>
+                    <p><strong>Date & Time:</strong> <span id="successDateTime">-</span></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeModal('successModal'); window.location.reload();">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        let allPayments = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!app.currentUser) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            loadPayments();
+            setupPaymentMethodListeners();
+        });
+
+        function loadPayments() {
+            if (app.currentUser.role === 'admin') {
+                allPayments = app.getPayments();
+            } else {
+                allPayments = app.getPayments(app.currentUser.id);
+            }
+
+            updateStats();
+            renderRecentTransactions();
+            renderPaymentHistory();
+            renderInvoices();
+        }
+
+        function updateStats() {
+            const totalPayments = allPayments.length;
+            const completed = allPayments.filter(p => p.status === 'completed').length;
+            const pending = allPayments.filter(p => p.status === 'pending').length;
+            const totalPaid = allPayments.filter(p => p.status === 'completed').reduce((sum, p) => sum + p.amount, 0);
+
+            document.getElementById('statsTotalPayments').textContent = totalPayments;
+            document.getElementById('statsCompletedPayments').textContent = completed;
+            document.getElementById('statsPendingPayments').textContent = pending;
+            document.getElementById('statsTotalPaid').textContent = `$${totalPaid.toFixed(2)}`;
+
+            // Update progress bars
+            if (totalPayments > 0) {
+                const completedPercent = (completed / totalPayments) * 100;
+                const pendingPercent = (pending / totalPayments) * 100;
+
+                document.getElementById('completedBar').style.width = completedPercent + '%';
+                document.getElementById('pendingBar').style.width = pendingPercent + '%';
+                document.getElementById('completedPercent').textContent = Math.round(completedPercent) + '%';
+                document.getElementById('pendingPercent').textContent = Math.round(pendingPercent) + '%';
+            }
+        }
+
+        function renderRecentTransactions() {
+            const recent = allPayments.slice(-5).reverse();
+            const tbody = document.getElementById('recentTransactions');
+
+            if (recent.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #666; padding: 2rem;">No recent transactions</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = recent.map(p => `
+                <tr>
+                    <td>${app.formatDate(p.date)}</td>
+                    <td>${p.description}</td>
+                    <td>$${p.amount.toFixed(2)}</td>
+                    <td>
+                        <span class="badge badge-${p.status === 'completed' ? 'success' : 'warning'}">
+                            ${p.status.charAt(0).toUpperCase() + p.status.slice(1)}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderPaymentHistory() {
+            const tbody = document.getElementById('paymentHistoryList');
+
+            if (allPayments.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #666; padding: 2rem;">No payment history</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = allPayments.slice().reverse().map(p => `
+                <tr>
+                    <td>${app.formatDate(p.date)}</td>
+                    <td><code style="background: #f5f5f5; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.75rem;">${p.transactionId}</code></td>
+                    <td>${p.description}</td>
+                    <td>$${p.amount.toFixed(2)}</td>
+                    <td>
+                        <span class="badge badge-${p.status === 'completed' ? 'success' : 'warning'}">
+                            ${p.status.charAt(0).toUpperCase() + p.status.slice(1)}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-secondary btn-sm" onclick="downloadReceipt(${p.id})">Receipt</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderInvoices() {
+            const invoices = allPayments.filter(p => p.status === 'pending');
+            const tbody = document.getElementById('invoicesList');
+
+            if (invoices.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #666; padding: 2rem;">No invoices available</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = invoices.map((p, idx) => `
+                <tr>
+                    <td>INV-${String(idx + 1).padStart(4, '0')}</td>
+                    <td>${app.formatDate(p.date)}</td>
+                    <td>${p.description}</td>
+                    <td>$${p.amount.toFixed(2)}</td>
+                    <td><span class="badge badge-warning">Pending</span></td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" onclick="switchTab('new')">Pay Now</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updatePaymentDescription() {
+            const type = document.getElementById('paymentType').value;
+            const descriptions = {
+                'registration': 'Registration Fee - Ecofoot Bukavu Sports Platform',
+                'monthly': 'Monthly Membership Fee',
+                'training': 'Training Program Fee',
+                'uniform': 'Team Uniform and Equipment',
+                'event': 'Event Registration Fee'
+            };
+            document.getElementById('paymentDescription').value = descriptions[type] || '';
+        }
+
+        function setupPaymentMethodListeners() {
+            document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const cardSection = document.getElementById('cardSection');
+                    if (this.value === 'card') {
+                        cardSection.style.display = 'block';
+                    } else {
+                        cardSection.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        function handlePayment(event) {
+            event.preventDefault();
+
+            const paymentData = {
+                userId: app.currentUser.id,
+                type: document.getElementById('paymentType').value,
+                description: document.getElementById('paymentDescription').value,
+                amount: parseFloat(document.getElementById('paymentAmount').value),
+                method: document.querySelector('input[name="paymentMethod"]:checked').value
+            };
+
+            if (paymentData.amount <= 0) {
+                app.showAlert('Please enter a valid amount', 'danger');
+                return;
+            }
+
+            const result = processPayment(paymentData);
+
+            if (result.success) {
+                // Show success modal
+                document.getElementById('successAmount').textContent = `$${paymentData.amount.toFixed(2)}`;
+                document.getElementById('successTxnId').textContent = result.payment.transactionId;
+                document.getElementById('successDateTime').textContent = app.formatDate(result.payment.date) + ' ' + app.formatTime(result.payment.date);
+                openModal('successModal');
+
+                document.getElementById('paymentForm').reset();
+                loadPayments();
+            }
+        }
+
+        function filterPayments() {
+            const status = document.getElementById('filterStatus').value;
+            const dateRange = parseInt(document.getElementById('filterDate').value) || null;
+
+            let filtered = allPayments;
+
+            if (status) {
+                filtered = filtered.filter(p => p.status === status);
+            }
+
+            if (dateRange) {
+                const cutoffDate = new Date();
+                cutoffDate.setDate(cutoffDate.getDate() - dateRange);
+                filtered = filtered.filter(p => new Date(p.date) >= cutoffDate);
+            }
+
+            const tbody = document.getElementById('paymentHistoryList');
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #666; padding: 2rem;">No payments found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.slice().reverse().map(p => `
+                <tr>
+                    <td>${app.formatDate(p.date)}</td>
+                    <td><code style="background: #f5f5f5; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.75rem;">${p.transactionId}</code></td>
+                    <td>${p.description}</td>
+                    <td>$${p.amount.toFixed(2)}</td>
+                    <td>
+                        <span class="badge badge-${p.status === 'completed' ? 'success' : 'warning'}">
+                            ${p.status.charAt(0).toUpperCase() + p.status.slice(1)}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-secondary btn-sm" onclick="downloadReceipt(${p.id})">Receipt</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function downloadReceipt(paymentId) {
+            const payment = allPayments.find(p => p.id === paymentId);
+            if (payment) {
+                const receipt = `
+ECOFOOT BUKAVU SPORTS MANAGEMENT
+================================
+
+PAYMENT RECEIPT
+Transaction ID: ${payment.transactionId}
+Date: ${app.formatDate(payment.date)}
+Time: ${app.formatTime(payment.date)}
+
+Description: ${payment.description}
+Amount: $${payment.amount.toFixed(2)}
+Status: ${payment.status.toUpperCase()}
+Payment Method: ${payment.method}
+
+User: ${app.currentUser.fullName}
+Email: ${app.currentUser.email}
+
+Thank you for your payment!
+`;
+                
+                const blob = new Blob([receipt], { type: 'text/plain' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `receipt-${payment.transactionId}.txt`;
+                a.click();
+                window.URL.revokeObjectURL(url);
+                
+                app.showAlert('Receipt downloaded successfully!', 'success');
+            }
+        }
+    </script>
+</body>
+</html>
